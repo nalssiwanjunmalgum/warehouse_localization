@@ -50,6 +50,23 @@ ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py
 ros2 launch turtlebot3_gazebo empty_world.launch.py
 ```
 
+### 우리 커스텀 개활 창고 월드 (M2)
+```bash
+# 워크스페이스 빌드 후 install 소싱 필요
+cd ~/ros2_ws && colcon build --packages-select warehouse_localization_sim_01
+source ~/ros2_ws/install/setup.bash
+
+# 개활 창고 월드 + waffle 스폰 (구석 -24,-24 에서 시작)
+ros2 launch warehouse_localization_sim_01 warehouse_world.launch.py
+
+# 월드만 헤드리스로 문법/로드 검증
+gz sdf --check ~/ros2_ws/install/warehouse_localization_sim_01/share/warehouse_localization_sim_01/worlds/warehouse/warehouse_open.world
+```
+
+> 참고: `TURTLEBOT3_MODEL=waffle` 은 이미지 bashrc에 전역 설정되어 모든 터미널에 자동 적용되고,
+> launch 파일도 자체적으로 이 값을 설정하므로(방탄), `source setup.bash` 후 바로 launch 해도 됩니다.
+> (`ROS_LOCALHOST_ONLY` 는 원래 필요 없었음 — 스폰 실패의 진짜 원인은 "잔여 프로세스 정리 후 재시작".)
+
 성공 판단 로그:
 ```
 SpawnEntity: Successfully spawned entity [waffle]

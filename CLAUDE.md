@@ -23,7 +23,8 @@
 
 그런데 대상 환경은:
 
-- **기둥 간격 20m** → LiDAR 유효 range(실질 8~12m대) 밖이라 대부분 구간에서 기둥이 안 잡힘
+- **기둥 간격 20m** → LiDAR 유효 range(본 프로젝트는 12m로 설정) 밖이라 대부분 구간에서 기둥이 안 잡힘
+  *(참고: waffle 기본 LiDAR는 max 3.5m로 매우 짧음 → 산업용 수준인 12m로 상향. 상세: [docs/M2_WORLD_DESIGN.md](docs/M2_WORLD_DESIGN.md))*
 - **적재물이 기둥을 가림** → 있어도 안 보임
 - **사방이 뚫린 개활지** → 스캔이 다 비슷하게 생김 (특징 부재 = perceptual aliasing)
 

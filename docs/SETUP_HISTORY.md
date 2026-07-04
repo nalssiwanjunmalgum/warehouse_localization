@@ -84,3 +84,46 @@ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 - ✅ Gazebo + turtlebot3_world + 로봇(waffle) 스폰 + 센서 플러그인(/scan, /odom, /imu, /cmd_vel) 동작
 - ⚠️ 멀티 터미널 DDS 디스커버리: **VNC 터미널 기준 검증 대기**
 - ⬜ 다음 단계: `ros2_ws/src`에 창고 로컬라이제이션 패키지 작성 (Nav2 + AMCL 또는 robot_localization EKF)
+
+---
+
+## 2026-07-04 — Q&A: 지금 보이는 월드/로봇/맵 파일의 출처
+
+**질문**: 아까 본 맵·waffle 로봇 파일은 어디에 있고 어떻게 생성된 것인가?
+
+**답변**: **우리가 만든 게 아니라, Dockerfile의 `apt-get install`로 설치된 ROBOTIS TurtleBot3 공식 패키지에 원래 포함된 기본 예제 파일**이다. 전부 컨테이너 내부 `/opt/ros/humble/share/` 아래에 위치.
+
+| 항목 | 경로 | 출처 패키지 |
+|------|------|------------|
+| 로봇 모델(waffle) | `/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle/` (`model.sdf`) | ros-humble-turtlebot3-gazebo |
+| 월드(.world) | `/opt/ros/humble/share/turtlebot3_gazebo/worlds/` (turtlebot3_world.world 등 8종) | ros-humble-turtlebot3-gazebo |
+| 런치 | `/opt/ros/humble/share/turtlebot3_gazebo/launch/` (turtlebot3_world.launch.py 등) | ros-humble-turtlebot3-gazebo |
+| 기본 맵 | `/opt/ros/humble/share/turtlebot3_navigation2/map/` (`map.pgm` + `map.yaml`) | ros-humble-turtlebot3-navigation2 |
+
+**프로젝트 관점의 의미**:
+- 지금 있는 육각형 월드 + waffle + 맵은 **"TurtleBot3 튜토리얼 기본 예제"** — 특징이 풍부해 AMCL이 잘 되는 환경. M1(스택 검증)엔 적합했으나 **우리 문제(특징 없는 개활지)와는 정반대**.
+- 따라서 **M2에서 우리만의 개활지 `.world`를 새로 제작**해 `ros2_ws/src`에 넣어야 함. 기본 제공 파일은 건드리지 않고 우리 패키지에 별도 작성.
+- 맵도 기본 `map.pgm`은 육각형 월드용이므로, 개활지 월드용 맵을 새로 떠야 함(맵 전략 P2에서 결정).
+- `ros2_ws/src`는 현재 비어 있음 → 커스텀 월드/맵/런치/노드는 전부 여기에 신규 생성.
+
+---
+
+## 2026-07-04 — Q&A: `export`(TURTLEBOT3_MODEL) 없이 바로 launch 해도 되나?
+
+**질문**: 이전에 export 안 해서 문제됐던 게 `install/setup.bash` 안에 있나? 바로 launch 하면 또 문제 생기지 않나?
+
+**답변**: 문제없다. 두 가지를 구분해야 함.
+- **`TURTLEBOT3_MODEL=waffle`**: 이미지 `/etc/bash.bashrc`에 `export`로 박혀 있어 **모든 터미널에 자동 적용**됨(확인 완료). `install/setup.bash`에는 없지만(그건 워크스페이스 패키지 경로만 추가) 전역 설정이 이미 잡아줌. 추가로 **launch 파일도 자체적으로 `SetEnvironmentVariable('TURTLEBOT3_MODEL','waffle')`로 고정**하도록 하드닝함 → 셸 env에 아예 비의존(방탄).
+- **`ROS_LOCALHOST_ONLY`**: 애초에 스폰 실패의 원인이 아니었음(성공했던 launch에도 미설정). 진짜 원인은 "잔여 프로세스/SHM 정리 후 깨끗한 재시작". 따라서 이 export는 불필요.
+
+**결론**: `source ~/ros2_ws/install/setup.bash && ros2 launch warehouse_localization_sim_01 warehouse_world.launch.py` 로 바로 실행 OK. 스폰 타임아웃이 재발하면 프로세스 정리 후 재시작(→ KNOWN_ISSUES #1).
+
+---
+
+## 2026-07-04 — 공장/창고 환경 구조 분리
+
+- 결정: **지금은 구조(디렉토리·네이밍)만 분리**, 공장 월드 실제 제작은 추후. 창고 M2 계속.
+- 패키지 `warehouse_localization_sim_01` 내부를 환경별로 재편:
+  - `worlds/warehouse/warehouse_open.world` (창고, 제작 완료) / `worlds/factory/` (자리표시자)
+  - `maps/warehouse/` · `maps/factory/` (자리표시자, 맵은 P2에서)
+- 두 환경은 "특징 없는 개활지" 문제를 공유하되 장애물 성격이 다름(창고=랙/선반, 공장=생산 설비). 상세: [M2_WORLD_DESIGN.md](./M2_WORLD_DESIGN.md).
