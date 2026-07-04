@@ -67,8 +67,8 @@ def draw_env(ax, img, extent):
 
 
 def make_fig(img, extent, results, show_amcl, out, title):
-    fig, axes = plt.subplots(2, 3, figsize=(16, 11))
-    fig.suptitle(title, fontsize=13)
+    fig, axes = plt.subplots(2, 3, figsize=(16, 12))
+    fig.suptitle(title, fontsize=13, y=0.985)
     axes = axes.ravel()
     for k, (sid, (label, start, goal)) in enumerate(SCEN.items()):
         ax = axes[k]
@@ -108,7 +108,9 @@ def make_fig(img, extent, results, show_amcl, out, title):
     ax.plot([], [], ls='--', color='crimson', label='featureless core (r≈4m)')
     ax.legend(loc='center', fontsize=12, frameon=True)
 
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    # 윗줄/아랫줄 사이 간격을 넉넉히 → 아래 패널 2줄 제목이 위 패널 축라벨과 안 겹침
+    fig.subplots_adjust(left=0.05, right=0.98, top=0.91, bottom=0.06,
+                        hspace=0.42, wspace=0.28)
     fig.savefig(out, dpi=120)
     print(f'저장: {out}')
 
