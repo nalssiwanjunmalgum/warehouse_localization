@@ -104,18 +104,22 @@ cd ~/ros2_ws && colcon build --symlink-install && source install/setup.bash
 
 ## 7. 진행 현황 & 로드맵
 
-### 완료
-- [x] Docker/devcontainer 기반 ROS2 Humble 환경 구성 (VNC 데스크톱)
-- [x] 필요한 패키지 설치 (TurtleBot3, Nav2, robot_localization, Gazebo)
+> 상세 작업 상태는 [.claude/TASKS.md](.claude/TASKS.md), 단계별 문서는 [docs/](docs/) 참조.
 
-### 다음 마일스톤 (제안 순서)
-- [ ] **M1. 환경 검증** — 컨테이너 기동 → Gazebo에서 TurtleBot3 기본 월드 주행 확인 (스택이 정상 동작하는지)
-- [ ] **M2. 개활지 월드 제작** — 기둥 간격 20m + 적재물로 기둥이 가려지는 창고 월드(Gazebo `.world`) 작성
-- [ ] **M3. Baseline (AMCL)** — 지도 작성(SLAM) 후 AMCL 주행 → **드리프트/수렴 실패를 재현·시각화** (문제 제기)
-- [ ] **M4. 지표 파이프라인** — Ground Truth 취득 + rosbag 기록 + Python 플롯(ATE/RPE/공분산). 이후 단계는 이 파이프라인으로 비교
-- [ ] **M5. +EKF 융합** — `robot_localization`으로 오도메트리+IMU 융합, 드리프트 완화 정도 정량화
-- [ ] **M6. +랜드마크 보정** — 반사판 배치 + intensity 검출 + 삼각측량으로 절대 위치 보정, 오차 급감 확인 (해결)
-- [ ] **M7. 종합 비교** — 3단계를 동일 지표로 나란히 비교하는 리포트/시각화
+### 완료
+- [x] Docker/devcontainer 기반 ROS2 Humble 환경 구성 (VNC 데스크톱) + 패키지 설치
+- [x] **M1. 환경 검증** — Gazebo + TurtleBot3 구동, DDS/스폰 이슈 해결
+- [x] **M2. 개활지 월드** — 외벽 60×60 + 기둥 8개(20m 격자) + 랙 + 12m LiDAR + RViz + 자동주행 (`warehouse_localization_sim_01`)
+- [x] **P2. 맵 전략** — SLAM 대신 "라이다+ground-truth"로 드리프트-0 기준 지도
+- [x] **P5. 검증 시나리오** — C1~C5 + 캡처 규격 (docs/P5_SCENARIOS, CAPTURE_SPEC)
+- [x] **M4. 지표 파이프라인** — ground-truth + CSV 기록 + summarize(ATE/RPE/공분산) + plot
+- [x] **M3. Baseline (AMCL)** — 개활지 실패 재현·시각화, C1~C5 정량 결과 (`warehouse_localization_baseline_02`). 개활 횡단 ATE 24~34m(aliasing으로 회복 불가). 분석: docs/M3_ANALYSIS
+
+### 다음 마일스톤
+- [ ] **P3. 센서·랜드마크 설계** — LiDAR intensity 활성화, 반사판 개수·좌표·배치 (M6 선행)
+- [ ] **M5. +EKF 융합** — `robot_localization`으로 오도메트리+IMU 융합, 완화 정량화
+- [ ] **M6. +랜드마크 보정** — 반사판 intensity 검출 + 삼각측량 절대보정, aliasing 제거 (해결)
+- [ ] **M7. 종합 비교** — 3단계를 동일 시나리오·지표로 비교하는 리포트/시각화
 
 ---
 

@@ -14,31 +14,32 @@
 
 ## 📋 앞으로 진행 (Backlog)
 
-- [ ] (M1) 환경 검증 — 컨테이너 기동 후 Gazebo에서 TurtleBot3 기본 월드 주행 확인
-- [ ] (P1) 월드 설계 — 기둥 20m 간격 + 적재물 가림 Gazebo `.world` 작성 (→ M2)
-- [ ] (P2) 맵 전략 결정 — SLAM으로 뜰지 / 수동 제작할지
-- [ ] (M3) Baseline(AMCL) — 맵 작성 후 AMCL 주행, 드리프트/수렴 실패 재현·시각화
-- [ ] (P8/M4) 지표 파이프라인 — Ground Truth 취득 + rosbag 기록 + Python(ATE/RPE/공분산) 플롯
-- [ ] (P5) 검증 시나리오 설계 — 경로 형태·시작·목표점·스트레스 구간 정의
-- [ ] (P3) 센서·랜드마크 설계 — LiDAR range, 반사판 개수·좌표·배치
-- [ ] (M5) +EKF 융합 — robot_localization으로 오도메트리+IMU 융합, 완화 정량화
-- [ ] (M6) +랜드마크 보정 — 반사판 intensity 검출 + 삼각측량 절대위치 보정
-- [ ] (M7) 종합 비교 — 3단계를 동일 지표로 비교하는 리포트/시각화
-- [ ] (P7) 성공 기준/가설 정의 — 단계별 기대 오차를 실험 전 숫자로 명시
+- [ ] (P3) 센서·랜드마크 설계 — LiDAR intensity 활성화, 반사판 개수·좌표·배치 (→ M6 선행)
+- [ ] (P7) 성공 기준/가설 정의 — 단계별 기대 오차를 실험 전 숫자로 명시 (baseline ATE 24~34m 확보됨)
+- [ ] (M5) +EKF 융합 — robot_localization으로 오도메트리+IMU 융합, 완화 정량화 (동일 시나리오·지표 재사용)
+- [ ] (M6) +랜드마크 보정 — 반사판 intensity 검출 + 삼각측량 절대위치 보정, aliasing 제거 (핵심 해결책)
+- [ ] (M7) 종합 비교 — 3단계(AMCL / +EKF / +반사판)를 동일 지표로 비교하는 리포트/시각화
 
 ### 추후 상세화 (Deferred)
-- [ ] (P4) 노이즈 주입 설계 — 바퀴 미끄러짐·IMU 바이어스로 드리프트 재현
-- [ ] (P6) 비교 실험 프로토콜 — 통제 변수·seed 고정·반복 횟수
+- [ ] (P4) 노이즈 주입 설계 — 바퀴 미끄러짐·IMU 바이어스로 드리프트 재현 (현재 실패는 feature부재+aliasing 주도라 선택사항)
+- [ ] (P6) 비교 실험 프로토콜 — 통제 변수·seed 고정·반복 횟수(현재 단일 run → 반복 평균 필요)
 
 ---
 
 ## 🔨 진행 중 (In Progress)
 
-- [ ] (T1) 개발 환경 다운로드/빌드 대기 — Docker 이미지 pull & build 진행 중
+- (없음)
 
 ---
 
 ## ✅ 처리됨 (Done)
 
 - [x] (T0) 프로젝트 목표·구조 정리 및 CLAUDE.md 작성
-- [x] (T0) Docker/devcontainer 기반 ROS2 Humble 환경 파일 구성 (Dockerfile, docker-compose.yml, .devcontainer)
+- [x] (T0) Docker/devcontainer 기반 ROS2 Humble 환경 파일 구성
+- [x] (T1) 개발 환경 다운로드/빌드 + 컨테이너 기동
+- [x] (M1) 환경 검증 — Gazebo + TurtleBot3 구동, DDS/스폰 이슈 해결
+- [x] (P1/M2) 개활 창고 월드 — 외벽 60×60 + 기둥 8개(20m 격자) + 랙 + 12m LiDAR + RViz + 자동주행
+- [x] (P2) 맵 전략 — SLAM 대신 "라이다+ground-truth"로 드리프트-0 기준 지도 생성
+- [x] (P5) 검증 시나리오 설계 — C1~C5(init/goal·실패모드) + 캡처 규격
+- [x] (M4) 지표 파이프라인 — ground-truth 취득 + CSV 기록 + summarize(ATE/RPE/공분산) + plot
+- [x] (M3) Baseline(AMCL) — 개활지 로컬라이제이션 실패 재현·시각화, C1~C5 정량 결과 수집
