@@ -94,6 +94,15 @@ warehouse_localization_sim_01/
   "특징 없는 개활지에서 LiDAR가 아무것도 못 봄"이 수치로 확인됨 = M2 목표 달성.
 - 알려진 사소한 이슈: 개활지에서 간헐적으로 전방 0.1m 스푸리어스 리딩 → 순간 안전회전 유발(주행엔 지장 없음). 추후 필요시 range 필터 보강.
 
+## 맵 전략(P2) — 결정·완료 (2026-07-04)
+- **결정: SLAM 대신 "2D 라이다 + ground-truth 위치" 방식.** 개활지는 SLAM에게도 어려워(같은 특징 부재)
+  지도가 뒤틀림 → 비교 실험의 confound. 시뮬레이션은 ground-truth를 공짜로 주므로, 라이다 스캔을
+  **진짜 위치에 누적**하면 드리프트 0의 정확한 기준 지도가 나옴. (M4 평가용 ground-truth도 동시 확보)
+- 구현: 로봇에 `libgazebo_ros_p3d`(→ `/ground_truth`) 추가 + `scripts/map_builder.py`(빔 ray-casting 누적)
+  + `auto_drive_demo.py route:=perimeter`(외벽·기둥 훑기).
+- 산출: `maps/warehouse/warehouse_map.{pgm,yaml}` (1280x1280 @0.05m). 외벽 4면 + 기둥 8개 + 랙 반영,
+  중앙 featureless core 일부 미관측(특징 없어 무방).
+
 ## 미결/다음 결정
-- [ ] 맵 전략(P2): 개활지라 맵 대부분이 빈 공간 → SLAM으로 뜰지/수동 제작할지
-- [ ] 로봇 경로·시작/목표점(P5)
+- [ ] 로봇 경로·시작/목표점(P5) — 검증 시나리오
+- [ ] (선택) 맵 중앙 미관측 영역 free 채우기 (nav2 경로계획 필요 시)

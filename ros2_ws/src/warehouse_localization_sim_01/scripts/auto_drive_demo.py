@@ -23,13 +23,18 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 
 # odom ≈ world 이므로 웨이포인트는 world 좌표 그대로 사용.
-# 기둥(±20 격자)을 직선으로 관통하지 않도록 경로 설계. 스폰=(-24,-24).
-WORLD_WAYPOINTS = [
-    (-10.0, -24.0),  # 남쪽 통로로 동진(기둥 열 y=-20에서 4m 남쪽) — 스폰 옆 기둥 회피
-    (0.0, 0.0),      # featureless core: 스캔 비어야 함
-    (12.0, 0.0),     # 동쪽 랙(16,0)/기둥(20,0) 근처: 스캔 다시 찍힘
-    (0.0, 0.0),      # 다시 중앙
-]
+# route 파라미터로 경로 선택. 기둥(±20 격자)을 직선 관통하지 않도록 설계. 스폰=(-24,-24).
+ROUTES = {
+    # 스캔 시연: 중앙(빔) <-> 특징 근처(스캔) 반복
+    'demo': [
+        (-10.0, -24.0), (0.0, 0.0), (12.0, 0.0), (0.0, 0.0),
+    ],
+    # 지도 제작: 외벽 안쪽(±24)을 한 바퀴 돌며 벽·기둥을 근접 관측 + 중앙 통과
+    'perimeter': [
+        (-24.0, -24.0), (24.0, -24.0), (24.0, 24.0), (-24.0, 24.0),
+        (-24.0, -24.0), (0.0, 0.0), (24.0, 0.0), (0.0, 0.0), (0.0, 24.0), (0.0, 0.0),
+    ],
+}
 
 V_MAX = 0.6           # 최대 전진속도 (m/s)
 W_MAX = 1.0           # 최대 회전속도 (rad/s)
@@ -54,13 +59,16 @@ class AutoDrive(Node):
         self.pose = None
         self.front_min = math.inf
         self.beams = 0
+        self.declare_parameter('route', 'demo')     # 'demo' | 'perimeter'
+        route = self.get_parameter('route').value
+        self.waypoints = ROUTES.get(route, ROUTES['demo'])
         self.wp = 0
         self.pause_ticks = 0
         # odom ≈ world → 웨이포인트를 그대로 목표로 사용
-        self.targets = list(WORLD_WAYPOINTS)
+        self.targets = list(self.waypoints)
         self.create_timer(0.1, self.loop)
         self.create_timer(2.0, self.report)
-        self.get_logger().info('auto_drive_demo 시작 — 중앙<->특징 순회. Ctrl+C 로 종료.')
+        self.get_logger().info(f'auto_drive_demo 시작 — route={route}. Ctrl+C 로 종료.')
 
     def on_odom(self, m):
         p = m.pose.pose.position
@@ -81,7 +89,7 @@ class AutoDrive(Node):
         if self.pose is None:
             return
         wx, wy = self.pose[0], self.pose[1]   # odom ≈ world
-        tgt = WORLD_WAYPOINTS[self.wp]
+        tgt = self.waypoints[self.wp]
         state = '중앙(스캔 비어야 정상)' if tgt == (0.0, 0.0) else '특징 근처(스캔 찍힘)'
         self.get_logger().info(
             f'world=({wx:+5.1f},{wy:+5.1f}) 목표={tgt}{state} | 스캔 유효빔={self.beams} | 전방={self.front_min:.1f}m')

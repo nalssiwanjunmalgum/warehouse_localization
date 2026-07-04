@@ -9,9 +9,11 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-# 자동 주행 데모 노드 (ros2 run 으로 실행)
+# 실행 스크립트 (ros2 run 으로 실행)
 install(
-  PROGRAMS scripts/auto_drive_demo.py
+  PROGRAMS
+    scripts/auto_drive_demo.py
+    scripts/map_builder.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
