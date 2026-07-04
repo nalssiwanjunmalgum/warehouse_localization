@@ -13,6 +13,7 @@ install(
     scripts/metrics_recorder.py
     scripts/plot_metrics.py
     scripts/summarize.py
+    scripts/plot_scenarios.py
     scripts/run_scenario.sh
     scripts/run_all_baseline.sh
   DESTINATION lib/${PROJECT_NAME}
