@@ -1,0 +1,15 @@
+services:
+  ros2-desktop:
+    build: .
+    image: warehouse-localization:humble
+    container_name: warehouse_localization
+    security_opt:
+      - seccomp:unconfined      # Humble 이미지 실행에 필수
+    shm_size: '1gb'             # Gazebo 화면이 까맣게 나오면 2gb로 올리기
+    ports:
+      - "6080:80"               # 브라우저 데스크톱: http://localhost:6080
+    volumes:
+      - ./ros2_ws:/home/ubuntu/ros2_ws
+    environment:
+      - TURTLEBOT3_MODEL=waffle
+    restart: unless-stopped

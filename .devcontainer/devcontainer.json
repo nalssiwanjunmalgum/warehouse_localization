@@ -1,0 +1,16 @@
+{
+  "name": "warehouse-localization",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "ros2-desktop",
+  "workspaceFolder": "/home/ubuntu/ros2_ws",
+  "remoteUser": "ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-iot.vscode-ros",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+# Claude Code 로컬(머신별) 설정 — 커밋 제외
+.claude/settings.local.json
+
+# ROS2 / colcon 빌드 산출물
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# 기타
+*.pyc
+__pycache__/
+.DS_Store
