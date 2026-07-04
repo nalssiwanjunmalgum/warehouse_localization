@@ -6,6 +6,13 @@ ros2_ws/build/
 ros2_ws/install/
 ros2_ws/log/
 
+# 대용량 생성물 — git 제외(원격 push 용량 초과 방지). 로컬/컨테이너에서 재생성 가능.
+#   맵:  map_builder.py,  결과 CSV/플롯:  metrics_recorder·plot_metrics·plot_scenarios
+*.pgm
+ros2_ws/src/warehouse_localization_baseline_02/results/*.csv
+ros2_ws/src/warehouse_localization_baseline_02/results/*.png
+docs/img/*.png
+
 # 기타
 *.pyc
 __pycache__/
