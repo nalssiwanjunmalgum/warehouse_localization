@@ -1,0 +1,17 @@
+{
+  "scenario": "C3",
+  "n_samples": 2572,
+  "duration_s": 257.1,
+  "ATE_rms_m": 32.3906,
+  "max_err_m": 59.0697,
+  "mean_err_m": 27.6454,
+  "final_err_m": 35.2585,
+  "max_cov_major_m": 24.9191,
+  "mean_cov_major_m": 9.3425,
+  "RPE_1s_rms_m": 4.7164,
+  "drift_rate_m_per_s": 0.4749,
+  "loop_disp_m": 54.356,
+  "reconv_events_s": [
+    196.8
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "scenario": "C4",
+  "n_samples": 1262,
+  "duration_s": 126.1,
+  "ATE_rms_m": 2.3926,
+  "max_err_m": 3.1416,
+  "mean_err_m": 2.2707,
+  "final_err_m": 2.7179,
+  "max_cov_major_m": 9.731,
+  "mean_cov_major_m": 6.5273,
+  "RPE_1s_rms_m": 0.3367,
+  "drift_rate_m_per_s": -0.0055,
+  "loop_disp_m": 21.2127,
+  "reconv_events_s": []
+}

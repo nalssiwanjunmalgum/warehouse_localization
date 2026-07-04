@@ -14,6 +14,7 @@
 | [M2_WORLD_DESIGN.md](./M2_WORLD_DESIGN.md) | M2 개활지 창고 월드 설계 결정·레이아웃 |
 | [P5_SCENARIOS.md](./P5_SCENARIOS.md) | P5 검증 시나리오 5케이스 + 지표(M4) 설계 |
 | [M3_BASELINE.md](./M3_BASELINE.md) | M3 AMCL baseline 로컬라이제이션·지표·시각화 |
+| [CAPTURE_SPEC.md](./CAPTURE_SPEC.md) | 시나리오별 결과 캡처 규격(이미지/수치, 파일명) |
 
 ## 기록 방침
 

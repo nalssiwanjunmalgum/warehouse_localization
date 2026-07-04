@@ -34,10 +34,18 @@ ROUTES = {
         (-24.0, -24.0), (24.0, -24.0), (24.0, 24.0), (-24.0, 24.0),
         (-24.0, -24.0), (0.0, 0.0), (24.0, 0.0), (0.0, 0.0), (0.0, 24.0), (0.0, 0.0),
     ],
+    # P5 검증 시나리오 (init 은 sim 스폰/AMCL initialpose 로 별도 지정; 여기는 경로만).
+    # 기둥(±20 격자)에서 옆으로 ≥4m 떨어진 '차선'을 따라 → 안전정지 미발동 → 오도로 곧장 주행.
+    # core(0,0) 통과 지점에서만 AMCL 발산.
+    'c1': [(-24.0, -8.0), (0.0, 0.0), (24.0, 8.0), (24.0, 24.0)],                     # SW→NE, 코어 통과
+    'c2': [(-6.0, 8.0), (6.0, -8.0), (24.0, -8.0)],                                   # 오프셋 코어 슬라이스
+    'c3': [(-24.0, -8.0), (0.0, 0.0), (24.0, 8.0), (24.0, -24.0), (-24.0, -24.0), (-22.0, -22.0)],  # 폐루프
+    'c4': [(-24.0, -8.0), (0.0, 0.0)],                                                # core 종착 후 정지
+    'c5': [(8.0, -24.0), (8.0, -8.0), (-8.0, 8.0), (-8.0, 24.0), (-18.0, 18.0)],      # 지그재그 N-S
 }
 
-V_MAX = 0.6           # 최대 전진속도 (m/s)
-W_MAX = 1.0           # 최대 회전속도 (rad/s)
+V_MAX = 0.9           # 최대 전진속도 (m/s) — 시나리오 완주 위해 상향
+W_MAX = 1.2           # 최대 회전속도 (rad/s)
 REACH_DIST = 1.5      # 웨이포인트 도달 판정 거리
 SAFE_FRONT = 0.9      # 전방 이보다 가까우면 안전 회피 (기둥 지름 0.4m라 여유 충분)
 
@@ -58,9 +66,13 @@ class AutoDrive(Node):
         self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
         self.pose = None
         self.front_min = math.inf
+        self.left_min = math.inf
+        self.right_min = math.inf
         self.beams = 0
-        self.declare_parameter('route', 'demo')     # 'demo' | 'perimeter'
+        self.declare_parameter('route', 'demo')      # demo|perimeter|c1..c5
+        self.declare_parameter('loop', True)         # False=마지막 웨이포인트서 정지 유지
         route = self.get_parameter('route').value
+        self.do_loop = bool(self.get_parameter('loop').value)   # 메서드 loop() 와 이름 충돌 방지
         self.waypoints = ROUTES.get(route, ROUTES['demo'])
         self.wp = 0
         self.pause_ticks = 0
@@ -74,16 +86,23 @@ class AutoDrive(Node):
         p = m.pose.pose.position
         self.pose = (p.x, p.y, yaw_from_q(m.pose.pose.orientation))
 
+    def _sector_min(self, m, center_rad, half_rad):
+        """스캔 0번=정면, CCW+. center 방향 ±half 섹터 최근접 거리."""
+        n = len(m.ranges)
+        c = int(round(center_rad / m.angle_increment)) % n
+        w = max(1, int(round(half_rad / m.angle_increment)))
+        vals = [m.ranges[(c + k) % n] for k in range(-w, w + 1)]
+        vals = [v for v in vals if math.isfinite(v) and v > 0]
+        return min(vals) if vals else math.inf
+
     def on_scan(self, m):
         n = len(m.ranges)
         if n == 0 or m.angle_increment == 0:
             return
         self.beams = sum(1 for v in m.ranges if math.isfinite(v) and v > 0)
-        # 전방 ±25° 섹터 최근접 거리 (스캔 0번=정면)
-        half = max(1, int((25.0 * math.pi / 180.0) / m.angle_increment))
-        idxs = list(range(0, half)) + list(range(n - half, n))
-        fr = [m.ranges[i] for i in idxs if math.isfinite(m.ranges[i]) and m.ranges[i] > 0]
-        self.front_min = min(fr) if fr else math.inf
+        self.front_min = self._sector_min(m, 0.0, math.radians(25))
+        self.left_min = self._sector_min(m, math.radians(45), math.radians(35))    # 전방-좌
+        self.right_min = self._sector_min(m, math.radians(-45), math.radians(35))   # 전방-우
 
     def report(self):
         if self.pose is None:
@@ -112,13 +131,22 @@ class AutoDrive(Node):
         desired = math.atan2(dy, dx)
         err = math.atan2(math.sin(desired - yaw), math.cos(desired - yaw))
 
-        # 안전: 전방 장애물 → 목표 방향쪽으로 돌아 회피 (제자리 맴돌기 방지, 오도메트리 무관)
+        # 안전: 전방 장애물 → '더 열린 쪽'으로 감아 회피 (기둥 뒤 목표 맴돌기 방지).
+        # 좌우 여유가 비슷하면 목표방향(err)으로 tie-break.
         if self.front_min < SAFE_FRONT:
-            cmd.angular.z = 0.7 if err >= 0 else -0.7
+            if self.left_min > self.right_min + 0.3:
+                cmd.angular.z = 0.8
+            elif self.right_min > self.left_min + 0.3:
+                cmd.angular.z = -0.8
+            else:
+                cmd.angular.z = 0.8 if err >= 0 else -0.8
             self.pub.publish(cmd)
             return
 
         if dist < REACH_DIST:
+            if self.wp == len(self.targets) - 1 and not self.do_loop:
+                self.pub.publish(Twist())                  # 최종 목표 도달 → 정지 유지
+                return
             self.wp = (self.wp + 1) % len(self.targets)   # 다음 웨이포인트 (순환)
             self.pause_ticks = 20                          # ~2초 정지
             self.pub.publish(Twist())
