@@ -8,6 +8,7 @@
 | 파일 | 내용 |
 |------|------|
 | [COMMANDS.md](./COMMANDS.md) | 자주 쓰는 실행 명령어 모음 (빌드·실행·점검·트러블슈팅) |
+| [CONCEPTS.md](./CONCEPTS.md) | 도메인 개념·용어 정리 (LiDAR 스캔, TF/odom 등) |
 | [SETUP_HISTORY.md](./SETUP_HISTORY.md) | Docker 빌드 · 실행 · 트러블슈팅 이력 로그 (날짜순, 계속 추가) |
 | [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) | 미해결/재발 가능 이슈와 대처법 요약 |
 | [M2_WORLD_DESIGN.md](./M2_WORLD_DESIGN.md) | M2 개활지 창고 월드 설계 결정·레이아웃 |

@@ -72,7 +72,28 @@ warehouse_localization_sim_01/
 - [ ] **GUI 육안 확인 대기** (VNC에서 launch 실행) ← 다음
 - [ ] 로봇을 중앙 core로 주행시켜 **LiDAR 스캔이 실제로 비는지** 확인
 
+## LiDAR 12m 상향 (2026-07-04 완료)
+- 방식: **커스텀 waffle 모델 복제** (스폰 인자로는 센서 range 변경 불가).
+- `models/warehouse_waffle_lidar12/` 에 원본 waffle `model.sdf` 복사 후 라이다 `<max>3.5</max>`→`<max>12.0</max>` 만 변경. 메시는 `model://turtlebot3_common` 참조 그대로.
+- `launch/warehouse_world.launch.py` 가 이 커스텀 모델을 스폰하도록 수정.
+- CMake `models/` 설치 추가. colcon 빌드 + `gz sdf --check` 통과.
+- ✅ **런타임 확인**: 재시작 후 `/scan` **range_max=12.0 확인**. 구석(-24,-24)에서 360빔 중 215빔이 벽 감지(5.5~11.9m).
+- 중앙 core 스캔 비움은 **RViz로 직접 관찰**하기로 (아래). ※ 텍스트 자동주행 시도는 실패(조잡한 go-to-goal 컨트롤러가 벽 충돌+제자리 회전 유발) → 폐기.
+
+## RViz 시각화 추가 (2026-07-04)
+- `config/warehouse.rviz`: Grid + TF + **LaserScan(/scan, best_effort, 빨간 점)** + RobotModel + Odometry. Fixed frame=odom.
+- `launch/display.launch.py`: `warehouse_world.launch.py` + RViz 통합 실행.
+- 사용: `ros2 launch warehouse_localization_sim_01 display.launch.py` → 주행하며 중앙에서 스캔 점이 사라지는지 관찰.
+
+## 자동 주행 데모 + featureless core 실증 (2026-07-04)
+- `scripts/auto_drive_demo.py` (`ros2 run warehouse_localization_sim_01 auto_drive_demo.py`):
+  중앙 ↔ 특징(랙/기둥) 근처를 자동 순회. 부드러운 비례 제어 + LiDAR 전방 안전정지로 **제자리 회전/벽 충돌 없음**.
+- **핵심 발견**: 이 waffle의 diff_drive는 odom을 **스폰 world 좌표에서 시작해 적산**(기본 ENCODER, `<odometry_source>` 미지정).
+  즉 `odom.position ≈ world`(초기 -24,-24)라 웨이포인트를 world 좌표 그대로 목표로 씀. (드리프트는 존재 → 우리 문제에 적합. 단 sim 오도메트리가 너무 정확하면 P4 노이즈 주입 필요.)
+- **✅ 실증 결과**: 헤드리스 테스트에서 로봇이 중앙으로 갈수록 **스캔 유효빔 215(구석) → ~14(개활지)로 붕괴**.
+  "특징 없는 개활지에서 LiDAR가 아무것도 못 봄"이 수치로 확인됨 = M2 목표 달성.
+- 알려진 사소한 이슈: 개활지에서 간헐적으로 전방 0.1m 스푸리어스 리딩 → 순간 안전회전 유발(주행엔 지장 없음). 추후 필요시 range 필터 보강.
+
 ## 미결/다음 결정
-- [ ] 커스텀 LiDAR 12m 반영 방식: 커스텀 waffle 모델 복제 vs 스폰 시 오버라이드
 - [ ] 맵 전략(P2): 개활지라 맵 대부분이 빈 공간 → SLAM으로 뜰지/수동 제작할지
 - [ ] 로봇 경로·시작/목표점(P5)

@@ -51,13 +51,25 @@ ros2 launch turtlebot3_gazebo empty_world.launch.py
 ```
 
 ### 우리 커스텀 개활 창고 월드 (M2)
+> 참고: `~/.bashrc`(및 Dockerfile)에 `source ~/ros2_ws/install/setup.bash` 자동 소싱을 넣어둠 →
+> **새로 여는 터미널은 자동으로 패키지 인식**. 단, 소싱 추가 이전에 열려있던 터미널은 `source ~/.bashrc` 한 번 필요.
+> 빌드 직후엔 새 패키지 반영 위해 `source ~/ros2_ws/install/setup.bash` (또는 새 터미널).
 ```bash
-# 워크스페이스 빌드 후 install 소싱 필요
+# 워크스페이스 빌드 (빌드 후 새 패키지는 재소싱 또는 새 터미널)
 cd ~/ros2_ws && colcon build --packages-select warehouse_localization_sim_01
 source ~/ros2_ws/install/setup.bash
 
 # 개활 창고 월드 + waffle 스폰 (구석 -24,-24 에서 시작)
 ros2 launch warehouse_localization_sim_01 warehouse_world.launch.py
+
+# 월드 + RViz 한 번에 (RViz에서 /scan 빨간 점으로 featureless core 관찰)
+ros2 launch warehouse_localization_sim_01 display.launch.py
+#   → RViz: 벽 근처엔 빨간 스캔 점, 중앙 개활지로 가면 점이 사라짐
+#   → 주행은 별도 터미널에서 teleop / cmd_vel / 자동 데모 중 택1
+
+# 자동 주행 데모 (중앙<->특징 순회, 키보드 불필요) — 별도 터미널
+ros2 run warehouse_localization_sim_01 auto_drive_demo.py
+#   → RViz로 보면 중앙에서 빨간 점이 사라지고(스캔 빔) 특징 근처서 다시 찍힘. Ctrl+C로 정지.
 
 # 월드만 헤드리스로 문법/로드 검증
 gz sdf --check ~/ros2_ws/install/warehouse_localization_sim_01/share/warehouse_localization_sim_01/worlds/warehouse/warehouse_open.world
@@ -77,6 +89,19 @@ SpawnEntity: Successfully spawned entity [waffle]
 ```bash
 export TURTLEBOT3_MODEL=waffle
 ros2 run turtlebot3_teleop teleop_keyboard
+```
+> **teleop 함정 주의**: (1) teleop 터미널을 **클릭해 포커스**해야 키가 먹음, (2) **W 1회=+0.01 m/s**라
+> 눈에 보이려면 W를 15~20번 연타(teleop 화면의 `currently: linear velocity` 확인), (3) sim이 느리면
+> (RTF<1) 작은 속도는 거의 안 보임.
+
+### 로봇 조종 (직접 명령) — 포커스 불필요, 가장 확실
+```bash
+# 전진 0.3 m/s (Ctrl+C 로 중단)
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.3}}" -r 10
+# 정지
+ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0}}"
+# 제자리 회전 (angular.z)
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{angular: {z: 0.5}}" -r 10
 ```
 
 ---

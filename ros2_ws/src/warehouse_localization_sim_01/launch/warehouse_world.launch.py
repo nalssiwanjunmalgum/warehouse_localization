@@ -27,8 +27,9 @@ def generate_launch_description():
     y_pose = LaunchConfiguration('y_pose', default='-24.0')
 
     world = os.path.join(pkg_this, 'worlds', 'warehouse', 'warehouse_open.world')
+    # 커스텀 waffle: LiDAR 최대거리 12m (원본 3.5m). 메시는 turtlebot3_common 참조 유지.
     waffle_sdf = os.path.join(
-        pkg_tb3_gazebo, 'models', 'turtlebot3_waffle', 'model.sdf')
+        pkg_this, 'models', 'warehouse_waffle_lidar12', 'model.sdf')
 
     gzserver = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(

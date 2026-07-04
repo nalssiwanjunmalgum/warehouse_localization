@@ -39,22 +39,28 @@ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
 ---
 
-## 4. (⚠️ 검증 대기) 멀티 터미널 DDS 디스커버리 고립 가능성
-**증상 후보**: 새 터미널에서 `ros2 topic list` 시 실행 중인 sim 토픽이 안 보이고 `/parameter_events`, `/rosout`만 표시.
+## 4. (✅ 대체로 해결) 멀티 터미널 DDS 디스커버리
+**현황**: 깨끗하게 재시작된 sim에서는 멀티 터미널 통신 **정상** 확인됨(2026-07-04, teleop/topic pub로 로봇 이동 성공). 초기 "고립"은 지저분한 `/dev/shm` 상태에서 뜬 특정 인스턴스의 문제였음.
 
-**먼저 확인** (VNC 데스크톱 새 터미널에서):
+**만약 새 터미널에서 sim 토픽이 안 보이면**(`/parameter_events`, `/rosout`만):
 ```bash
-ros2 topic list   # /scan, /odom, /cmd_vel, /tf 가 보이는지
-```
-- 보이면: 문제 없음.
-- 안 보이면(2개만): 아래 대처.
-
-**대처 후보 (확정 시 적용)**
-```bash
-# FastDDS 잔여 공유메모리 정리 (ROS 프로세스 모두 종료 상태에서)
+# 모든 ROS/gazebo 프로세스 종료 상태에서 FastDDS 잔여 공유메모리 정리
+pkill -9 -f gazebo; pkill -9 -f gzserver; pkill -9 -f gzclient
 fastdds shm clean          # 또는: rm -f /dev/shm/fastrtps_* /dev/shm/sem.fastrtps_*
+# 이후 sim 재실행 → 다른 터미널도 정상 합류
 ```
-- 영구화 옵션: CycloneDDS 도입(`RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`, 패키지 설치+재빌드 필요) 또는 셸 시작 시 자동 SHM 정리.
+- 영구화 옵션(재발 잦으면): CycloneDDS 도입(`RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`, 패키지 설치+재빌드).
+
+---
+
+## 5. teleop로 로봇이 안 움직임
+대개 DDS 문제 아님. 확인 순서:
+1. teleop 터미널을 **클릭해 포커스** 상태로.
+2. **W를 15~20번 연타** (1회 +0.01 m/s). teleop 화면 `currently: linear velocity` 값 확인.
+3. sim이 느리면(RTF<1) 작은 속도는 거의 안 보임 → 값을 더 올리거나 직접 명령 사용.
+4. 그래도 안 되면 직접 명령으로 파이프라인 확인:
+   `ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.3}}" -r 10`
+   그리고 `ros2 topic info /cmd_vel` 로 Publisher/Subscription 각각 1인지 확인.
 
 ---
 

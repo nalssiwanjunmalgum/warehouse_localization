@@ -63,7 +63,16 @@ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 > 재시작 시 `export ROS_LOCALHOST_ONLY=1`을 함께 넣었지만, 이후 조사에서 **실제 실행된 launch 프로세스에는 `ROS_LOCALHOST_ONLY`가 설정돼 있지 않았음(기본값 0)**을 확인했다. 즉 스폰 성공의 실제 원인은 `ROS_LOCALHOST_ONLY`가 아니라 **"잔여 프로세스/공유메모리 정리 후의 깨끗한 재시작"**일 가능성이 높다. (1차 실패는 최초 실행 시 오염된 상태 또는 타이밍 문제로 추정.)
 > → 재발 시: `export`에 의존하기보다 **모든 gzserver/gzclient/ros2 프로세스를 완전히 정리하고 재시작**하는 것을 우선 시도할 것.
 
-### 4) DDS 디스커버리 관련 관찰 (⚠️ 검증 필요 — 미확정)
+> **✅ 2026-07-04 후속 검증: 멀티 터미널 DDS 통신 정상으로 확정** — 아래 4) ⚠️ 항목 해소.
+> M2 월드에서 teleop(별도 터미널)로 로봇 조종 시도 → `/cmd_vel` Publisher 1 + Subscription 1(gzserver)
+> 로 정상 연결 확인. docker exec에서도 `/cmd_vel /odom /scan /imu` 모두 보임. 직접 `ros2 topic pub /cmd_vel`
+> 로 로봇 이동 성공(x −24.00→−23.92). **초기 "고립"은 지저분한 shm 상태에서 뜬 특정 인스턴스의 문제였고,
+> 깨끗하게 재시작된 sim에서는 멀티 터미널 통신이 정상**. → KNOWN_ISSUES #4 해결로 갱신.
+>
+> ※ 당시 teleop로 안 움직인 진짜 원인은 DDS가 아니라 teleop 사용법: (1) 터미널 키보드 포커스 필요,
+> (2) W 1회=+0.01 m/s라 여러 번 연타 필요, (3) sim이 느려(RTF 0.41) 작은 속도는 거의 안 보임.
+
+### 4) DDS 디스커버리 관련 관찰 (⚠️ → ✅ 위 후속 검증에서 해소)
 - `docker exec`로 컨테이너에 들어가 `ros2 topic list` 시 **실행 중인 sim의 토픽(/scan, /odom 등)이 안 보이는** 현상 관찰.
 - 반면 새로 띄운 두 프로세스(probe) 간에는 디스커버리 정상 동작.
 - RMW: 기본 `rmw_fastrtps_cpp`. `~/.bashrc`·`/etc/bash.bashrc`에 별도 DDS 설정 없음(순수 기본).
