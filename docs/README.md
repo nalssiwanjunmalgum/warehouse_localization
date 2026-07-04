@@ -12,6 +12,7 @@
 | [SETUP_HISTORY.md](./SETUP_HISTORY.md) | Docker 빌드 · 실행 · 트러블슈팅 이력 로그 (날짜순, 계속 추가) |
 | [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) | 미해결/재발 가능 이슈와 대처법 요약 |
 | [M2_WORLD_DESIGN.md](./M2_WORLD_DESIGN.md) | M2 개활지 창고 월드 설계 결정·레이아웃 |
+| [P5_SCENARIOS.md](./P5_SCENARIOS.md) | P5 검증 시나리오 5케이스 + 지표(M4) 설계 |
 
 ## 기록 방침
 
