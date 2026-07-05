@@ -14,6 +14,7 @@ install(
     scripts/landmark_localizer.py
     scripts/plot_final_compare.py
     scripts/plot_per_scenario.py
+    scripts/plot_reflectors.py
     scripts/run_scenario_landmark.sh
     scripts/run_all_landmark.sh
   DESTINATION lib/${PROJECT_NAME}
