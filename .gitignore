@@ -6,12 +6,13 @@ ros2_ws/build/
 ros2_ws/install/
 ros2_ws/log/
 
-# 대용량 생성물 — git 제외(원격 push 용량 초과 방지). 로컬/컨테이너에서 재생성 가능.
-#   맵:  map_builder.py,  결과 CSV/플롯:  metrics_recorder·plot_metrics·plot_scenarios
+# 생성물(시각화·결과·맵) — git 제외. 모두 스크립트로 재생성 가능.
+# (주의: gitignore 는 인라인 주석 불가 — 주석은 반드시 별도 줄)
+# 맵 이미지(패키지 내, launch가 참조 — 로컬 재생성)
 *.pgm
-ros2_ws/src/warehouse_localization_baseline_02/results/*.csv
-ros2_ws/src/warehouse_localization_baseline_02/results/*.png
-docs/img/*.png
+# 시각화·결과 전용 출력 폴더 (README 만 추적)
+ros2_ws/outputs/*
+!ros2_ws/outputs/README.md
 
 # 기타
 *.pyc
