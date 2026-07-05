@@ -117,10 +117,10 @@ cd ~/ros2_ws && colcon build --symlink-install && source install/setup.bash
 - [x] **④ 노이즈 주입 + M5. +EKF 융합** — 바퀴 오도에 헤딩 바이어스 드리프트 주입 후 `robot_localization` EKF(오도 속도+IMU 절대 yaw)로 완화 (`warehouse_localization_ekf_03`, 모델 `warehouse_waffle_ekf`, 결과 `outputs/ekf/`). **혼합 결과가 핵심**: 드리프트 지배 국면(C4)에선 EKF가 ATE 10.5→2.3m 완전 복구, 그러나 풀 개활 횡단은 aliasing 대재앙이 지배해 효과가 묻히고 **cov(확신도)는 세 구성 모두 불변** = 절대위치 실패는 못 고침 → 완화≠해결. 설계: docs/M5_EKF, 분석: docs/M5_ANALYSIS
 
 - [x] **P3. 센서·랜드마크 설계** — 반사판 16개 좌표·불규칙 배치(중앙 개활 ≥3 within 12m, core 4개)·landmarks DB 포맷 확정. **intensity 검출은 이 환경서 막힘**(CPU ray는 laser_retro 무시→intensities 0, gpu_ray는 헤드리스 렌더 불가) → **기하 검출+성좌매칭**으로 결정. 설계: docs/P3_SENSOR_LANDMARK
+- [x] **M6. +랜드마크 보정 (해결)** — 반사판 기하 검출 + 성좌 연관 + 2D Procrustes 삼각측량 → map→odom 절대보정 (`warehouse_localization_landmark_04`, 반사판 오버레이 월드, AMCL 없음·EKF 유지). **C1~C5 ATE 24~34m → 0.13~0.32m (~100~200×), cov·aliasing 점프 소멸**. 개활지 절대위치 문제 해결. 결과 `outputs/landmark/`. 분석: docs/M6_ANALYSIS
+- [x] **M7. 종합 비교** — 3단계(Baseline→+EKF→+Landmark) 동일 시나리오·지표 비교. `plot_final_compare.py` → `outputs/landmark/final_compare_{bars,curves}.png`(ATE 로그축+cov). 요약표: docs/M6_ANALYSIS §4.
 
-### 다음 마일스톤
-- [ ] **M6. +랜드마크 보정** — 반사판 기하 검출 + 성좌식별 + 삼각측량 절대보정, aliasing 제거 (해결)
-- [ ] **M7. 종합 비교** — 3단계를 동일 시나리오·지표로 비교하는 리포트/시각화
+> **프로젝트 결론(3단계 완성)**: 개활 창고에서 AMCL은 aliasing으로 실패(M3), EKF는 드리프트만 완화(M5), 반사판 절대보정이 문제를 해결(M6). = 실제 산업용 AGV가 반사판을 쓰는 이유의 정량 재현.
 
 ---
 

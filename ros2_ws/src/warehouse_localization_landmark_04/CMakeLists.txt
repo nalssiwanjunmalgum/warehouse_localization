@@ -12,6 +12,7 @@ install(
   PROGRAMS
     scripts/gen_reflectors.py
     scripts/landmark_localizer.py
+    scripts/plot_final_compare.py
     scripts/run_scenario_landmark.sh
     scripts/run_all_landmark.sh
   DESTINATION lib/${PROJECT_NAME}

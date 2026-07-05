@@ -10,7 +10,7 @@
 |------|------|
 | `baseline/` | **M3 Baseline (AMCL only)** — C1~C5 결과·플롯·개요 그림 |
 | `ekf/` | **M5 +EKF** — C1~C5 를 N(노이즈만)·E(노이즈+EKF) 두 구성으로. `Cx_{noise,ekf}.{csv,summary.json,plot.png}` + `ekf_compare_{bars,curves}.png`(baseline 대비 3-way) |
-| (추후) `landmark/` | M6 +랜드마크 보정 결과 |
+| `landmark/` | **M6 +랜드마크(해결)** — C1~C5 `Cx_landmark.{csv,summary.json,plot.png}` + `final_compare_{bars,curves}.png`(M7 3단계 종합: Baseline/N/E/Landmark) |
 
 ## baseline/ 안에 무엇이 들어오나
 | 파일 | 생성 |
