@@ -5,7 +5,14 @@
 
 호스트에서도 바로 보임(`ros2_ws`가 컨테이너에 마운트됨 → `ros2_ws/outputs/`).
 
-## 무엇이 들어오나
+## 폴더 구조 (단계별로 분리)
+| 폴더 | 내용 |
+|------|------|
+| `baseline/` | **M3 Baseline (AMCL only)** — C1~C5 결과·플롯·개요 그림 |
+| (추후) `ekf/` | M5 +EKF 융합 결과 |
+| (추후) `landmark/` | M6 +랜드마크 보정 결과 |
+
+## baseline/ 안에 무엇이 들어오나
 | 파일 | 생성 |
 |------|------|
 | `Cx_baseline.csv` | metrics_recorder (per-timestep 원자료) |
@@ -16,9 +23,9 @@
 
 ## 재생성
 ```bash
-# C1~C5 배치 (결과 CSV/summary/plot 이 이 폴더로)
-bash <install>/run_all_baseline.sh /home/ubuntu/ros2_ws/outputs
+# C1~C5 배치 (결과 CSV/summary/plot 이 baseline 폴더로)
+bash <install>/run_all_baseline.sh /home/ubuntu/ros2_ws/outputs/baseline
 # 개요 그림
-python3 <install>/plot_scenarios.py /home/ubuntu/ros2_ws/outputs <map.pgm> <map.yaml>
+python3 <install>/plot_scenarios.py /home/ubuntu/ros2_ws/outputs/baseline <map.pgm> <map.yaml>
 ```
 > 맵 이미지(`warehouse_map.pgm`)는 launch 가 참조하므로 패키지(`sim_01/maps/warehouse/`)에 두되 git 제외. 재생성: `map_builder.py` + `clean_map.py`.
