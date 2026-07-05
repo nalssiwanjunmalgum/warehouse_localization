@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>warehouse_localization_ekf_03</name>
+  <version>0.1.0</version>
+  <description>
+    M5 +EKF: 바퀴 오도메트리에 드리프트를 주입(④)하고 robot_localization EKF 로 오도+IMU 를
+    융합해 드리프트를 완화한다. AMCL 은 그대로 두고 odom→base 추측항법만 개선(완화 단계).
+  </description>
+  <maintainer email="cogmo@hippotnc.com">sunghun</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>nav2_amcl</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_lifecycle_manager</exec_depend>
+  <exec_depend>warehouse_localization_sim_01</exec_depend>
+  <exec_depend>warehouse_localization_baseline_02</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

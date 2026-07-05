@@ -1,0 +1,42 @@
+# M5 — robot_localization EKF 설정 (2D)
+# 노이즈 주입된 바퀴 오도(/odom_noisy)의 '속도'와 IMU 의 '절대 yaw + 각속도'를 융합해
+# odom→base_footprint TF 를 발행한다. IMU 헤딩이 바퀴 헤딩 드리프트를 잡아 드리프트를 완화.
+# (설계: docs/M5_EKF.md §3)
+#
+# *_config 순서(15): [x, y, z,  roll, pitch, yaw,  vx, vy, vz,  vroll, vpitch, vyaw,  ax, ay, az]
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 30.0
+    sensor_timeout: 0.2
+    two_d_mode: true
+    publish_tf: true
+    print_diagnostics: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom          # odom→base 를 추정(추측항법 개선). map→odom 은 AMCL 담당.
+
+    # 바퀴 오도(오염): '속도만' 융합. 드리프트한 절대 x,y,yaw 는 믿지 않음.
+    odom0: /odom_noisy
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  false, false,
+                   false, false, true,
+                   false, false, false]     # vx, vyaw
+    odom0_differential: false
+    odom0_relative: false
+    odom0_queue_size: 10
+
+    # IMU: '절대 yaw'(헤딩 앵커) + 각속도. 바퀴 헤딩 바이어스를 지속 교정 = EKF 완화의 핵심.
+    imu0: /imu
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]      # yaw, vyaw
+    imu0_differential: false
+    imu0_relative: false
+    imu0_remove_gravitational_acceleration: true
+    imu0_queue_size: 10
