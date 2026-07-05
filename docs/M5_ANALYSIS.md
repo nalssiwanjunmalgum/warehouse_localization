@@ -92,6 +92,11 @@ M5 에서는 지표를 **두 부류로 나눠 읽는 게 핵심**이다. EKF 가
 
 ![시점별 위치오차: N(빨강) vs E(초록)](../ros2_ws/outputs/ekf/ekf_compare_curves.png)
 
+**맵 위에서 보기 (GT vs EKF 추정)** — 초록=진짜 경로, 빨강 점선=EKF 추정. C4 만 추종하고 개활 횡단
+(C1·C2·C3·C5)은 aliasing 으로 맵 전체로 폭주(baseline 과 유사). = EKF 로도 절대위치는 못 잡음.
+
+![C1~C5 GT(초록) vs EKF(빨강) on map](../ros2_ws/outputs/ekf/failure_overview.png)
+
 ### 시나리오별 해석
 - **C4 (core 종착) — 결정적 승리 사례.** 노이즈가 baseline 2.39m 를 **10.54m 로 망가뜨렸는데, EKF 가
   2.27m(baseline 동일)로 완전 복구**. RPE 3.35→0.22, drift 0.23→0.00. 짧게 다녀와 aliasing 점프가

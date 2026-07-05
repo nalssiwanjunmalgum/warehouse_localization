@@ -3,10 +3,13 @@
 plot_scenarios.py
 맵(점유격자) 배경 위에 C1~C5 시나리오를 그려 문서 임베드용 그림 2종을 만든다.
   1) scenarios_overview.png — 무대+경로: 실제 GT 경로 + 출발(●)/끝(★)
-  2) failure_overview.png   — 실패비교: GT(초록) vs AMCL 추정(빨강) 경로, 맵 위에 겹침
+  2) failure_overview.png   — 비교: GT(초록) vs 추정(빨강) 경로, 맵 위에 겹침
 공통: 기둥(회색 원, 20m격자), 랙(주황), featureless core(빨간 점선원).
 
-실행: python3 plot_scenarios.py <results_dir> <map.pgm> <map.yaml>
+방식 무관 재사용: CSV 접미사·추정 라벨을 인자로 → baseline/ekf/landmark 모두 사용.
+실행: python3 plot_scenarios.py <results_dir> <map.pgm> <map.yaml> [suffix=baseline] [est_label=AMCL] [tag=M3 Baseline]
+  예) EKF:      ... <outputs/ekf> <map.pgm> <map.yaml> ekf "노이즈+EKF" "M5 EKF"
+      Landmark: ... <outputs/landmark> <map.pgm> <map.yaml> landmark "Landmark" "M6 Landmark"
 """
 import sys
 import csv
@@ -62,11 +65,10 @@ def draw_env(ax, img, extent):
     for (rx, ry, rw, rh) in RACKS:
         ax.add_patch(Rectangle((rx - rw / 2, ry - rh / 2), rw, rh,
                                color='darkorange', alpha=0.8, zorder=2))
-    ax.add_patch(plt.Circle((0, 0), 4, fill=False, ls='--', ec='crimson', lw=1.2, zorder=2))
     ax.set_aspect('equal')
 
 
-def make_fig(img, extent, results, show_amcl, out, title):
+def make_fig(img, extent, results, show_amcl, out, title, suffix='baseline', est_label='AMCL'):
     fig, axes = plt.subplots(2, 3, figsize=(16, 12))
     fig.suptitle(title, fontsize=13, y=0.985)
     axes = axes.ravel()
@@ -75,11 +77,11 @@ def make_fig(img, extent, results, show_amcl, out, title):
         draw_env(ax, img, extent)
         sub = ''
         try:
-            gx, gy, ex, ey, pe = load_run(f'{results}/{sid}_baseline.csv')
+            gx, gy, ex, ey, pe = load_run(f'{results}/{sid}_{suffix}.csv')
             if show_amcl:
                 ax.plot(gx, gy, color='limegreen', lw=2.2, zorder=3, label='ground truth')
-                ax.plot(ex, ey, color='red', lw=1.4, ls='--', zorder=4, label='AMCL est')
-                sub = f'   ATE={np.sqrt(np.mean(pe**2)):.1f}m  max={pe.max():.0f}m'
+                ax.plot(ex, ey, color='red', lw=1.4, ls='--', zorder=4, label=f'{est_label} est')
+                sub = f'   ATE={np.sqrt(np.mean(pe**2)):.2f}m  max={pe.max():.1f}m'
             else:
                 ax.plot(gx, gy, color='tab:blue', lw=1.8, zorder=3, label='GT path')
         except FileNotFoundError:
@@ -98,14 +100,13 @@ def make_fig(img, extent, results, show_amcl, out, title):
     ax = axes[5]; ax.axis('off')
     if show_amcl:
         ax.plot([], [], color='limegreen', lw=2.2, label='ground truth (real)')
-        ax.plot([], [], color='red', ls='--', lw=1.4, label='AMCL estimate')
+        ax.plot([], [], color='red', ls='--', lw=1.4, label=f'{est_label} estimate')
     else:
         ax.plot([], [], color='tab:blue', lw=1.8, label='ground-truth path')
     ax.scatter([], [], c='limegreen', s=110, marker='o', ec='k', label='start (init pose)')
     ax.scatter([], [], c='red', s=200, marker='*', ec='k', label='goal')
     ax.scatter([], [], c='dimgray', s=80, label='pillar (20m grid)')
     ax.scatter([], [], c='darkorange', s=80, marker='s', label='rack')
-    ax.plot([], [], ls='--', color='crimson', label='featureless core (r≈4m)')
     ax.legend(loc='center', fontsize=12, frameon=True)
 
     # 윗줄/아랫줄 사이 간격을 넉넉히 → 아래 패널 2줄 제목이 위 패널 축라벨과 안 겹침
@@ -117,11 +118,14 @@ def make_fig(img, extent, results, show_amcl, out, title):
 
 def main():
     results, pgm, yaml = sys.argv[1], sys.argv[2], sys.argv[3]
+    suffix = sys.argv[4] if len(sys.argv) > 4 else 'baseline'
+    est_label = sys.argv[5] if len(sys.argv) > 5 else 'AMCL'
+    tag = sys.argv[6] if len(sys.argv) > 6 else 'M3 Baseline'
     img, extent = read_map(pgm, yaml)
     make_fig(img, extent, results, False, f'{results}/scenarios_overview.png',
-             'M3 Baseline scenarios — map + ground-truth path (● start, ★ goal)')
+             f'{tag} scenarios — map + ground-truth path (● start, ★ goal)', suffix, est_label)
     make_fig(img, extent, results, True, f'{results}/failure_overview.png',
-             'M3 Baseline FAILURE — ground truth (green) vs AMCL estimate (red) on map')
+             f'{tag} — ground truth (green) vs {est_label} estimate (red) on map', suffix, est_label)
 
 
 if __name__ == '__main__':

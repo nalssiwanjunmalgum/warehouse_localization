@@ -64,6 +64,11 @@ drift_rate ≈ 0, cov_mean 0.76~5.86m(baseline 6.5~13.8 대비↓, 반사판 보
 
 ![시점별 위치오차: Baseline/EKF/Landmark](../ros2_ws/outputs/landmark/final_compare_curves.png)
 
+**맵 위에서 보기 (GT vs Landmark 추정)** — 초록=진짜 경로, 빨강 점선=Landmark 추정. **전 시나리오에서
+둘이 거의 완전히 겹친다**(baseline·EKF 의 폭주와 극명한 대비). = 반사판 절대보정으로 위치가 진실에 고정.
+
+![C1~C5 GT(초록) vs Landmark(빨강) on map](../ros2_ws/outputs/landmark/failure_overview.png)
+
 ### 읽는 법
 - **ATE 가 수십 m → 수십 cm** 로 전 시나리오 붕괴(로그축 그림에서 파랑만 바닥). aliasing 킬러였던
   C1·C3·C5(개활 횡단)도 **0.16~0.32m**. = **개활지 절대위치 문제 해결**.
