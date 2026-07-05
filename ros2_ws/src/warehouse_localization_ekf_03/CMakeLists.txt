@@ -11,6 +11,7 @@ install(
 install(
   PROGRAMS
     scripts/noise_injector.py
+    scripts/plot_ekf_compare.py
     scripts/run_scenario_ekf.sh
     scripts/run_all_ekf.sh
   DESTINATION lib/${PROJECT_NAME}
