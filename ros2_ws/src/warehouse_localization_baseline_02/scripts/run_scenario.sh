@@ -36,7 +36,9 @@ setsid ros2 launch turtlebot3_gazebo robot_state_publisher.launch.py use_sim_tim
 sleep 4
 
 echo "[$SCEN] AMCL 기동"
-setsid ros2 launch warehouse_localization_baseline_02 localization.launch.py \
+# AMCL_PARAMS 환경변수로 파라미터 파일 오버라이드 가능(기본 amcl.yaml). z_hit 실험 등에 사용.
+AMCL_ARG=""; [ -n "${AMCL_PARAMS:-}" ] && AMCL_ARG="amcl_params:=$AMCL_PARAMS"
+setsid ros2 launch warehouse_localization_baseline_02 localization.launch.py $AMCL_ARG \
   >/tmp/amcl.log 2>&1 </dev/null &
 sleep 12
 

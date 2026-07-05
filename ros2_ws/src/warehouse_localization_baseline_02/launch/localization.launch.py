@@ -19,10 +19,11 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_this = get_package_share_directory('warehouse_localization_baseline_02')
     pkg_sim = get_package_share_directory('warehouse_localization_sim_01')
-    amcl_params = os.path.join(pkg_this, 'config', 'amcl.yaml')
+    default_amcl = os.path.join(pkg_this, 'config', 'amcl.yaml')
     default_map = os.path.join(pkg_sim, 'maps', 'warehouse', 'warehouse_map.yaml')
 
     map_yaml = LaunchConfiguration('map', default=default_map)
+    amcl_params = LaunchConfiguration('amcl_params', default=default_amcl)
 
     map_server = Node(
         package='nav2_map_server', executable='map_server', name='map_server',
@@ -44,6 +45,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(DeclareLaunchArgument('map', default_value=default_map))
+    ld.add_action(DeclareLaunchArgument('amcl_params', default_value=default_amcl))
     ld.add_action(map_server)
     ld.add_action(amcl)
     ld.add_action(lifecycle)
