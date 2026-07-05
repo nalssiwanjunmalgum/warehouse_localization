@@ -25,4 +25,11 @@ ros2 run warehouse_localization_sim_01 auto_drive_demo.py --ros-args -p route:=p
 ## 특징
 - 외벽 4면 + 구조 기둥 8개(20m 격자) + 적재 랙이 정확히 반영됨.
 - **중앙 개활 구역 일부는 미관측(unknown)** — featureless core라 특징이 없어 매핑할 것도 없음.
-  AMCL 실험엔 무방. nav2 경로계획에 필요하면 내부를 free로 채우는 후처리 가능.
+  AMCL 실험엔 무방.
+
+## 후처리 정리 (clean_map.py)
+원거리 라이다 빔이 벌어져 생기는 '부챗살' 얼룩 + 중앙 미관측을 정리해 **깔끔한 통짜 free 실내**로 만든다.
+벽·기둥(점유)을 장벽으로 두고, 실내 free 와 이어진 unknown 셀을 반복 팽창으로 free 로 채움 → **점유 셀은 불변**(AMCL 결과 영향 없음), 화질/nav2 경로계획만 개선.
+```bash
+ros2 run warehouse_localization_sim_01 clean_map.py <in.pgm> <out.pgm>
+```

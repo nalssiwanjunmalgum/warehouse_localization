@@ -14,6 +14,7 @@ install(
   PROGRAMS
     scripts/auto_drive_demo.py
     scripts/map_builder.py
+    scripts/clean_map.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
