@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>warehouse_localization_landmark_04</name>
+  <version>0.1.0</version>
+  <description>
+    M6 +랜드마크 보정: 알려진 좌표의 반사판(가는 폴)을 CPU LiDAR 로 기하 검출하고,
+    보이는 반사판들의 성좌를 landmarks.yaml 에 매칭해 삼각측량(Procrustes)으로 절대 pose 를
+    확정, map→odom 을 보정한다. 개활지 perceptual aliasing 을 제거하는 '해결' 단계.
+  </description>
+  <maintainer email="cogmo@hippotnc.com">sunghun</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>warehouse_localization_sim_01</exec_depend>
+  <exec_depend>warehouse_localization_baseline_02</exec_depend>
+  <exec_depend>warehouse_localization_ekf_03</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

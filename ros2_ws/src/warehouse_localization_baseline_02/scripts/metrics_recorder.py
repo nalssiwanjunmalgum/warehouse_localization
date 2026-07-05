@@ -32,8 +32,11 @@ class MetricsRecorder(Node):
         super().__init__('metrics_recorder')
         self.declare_parameter('out_csv', '/tmp/amcl_metrics.csv')
         self.declare_parameter('rate', 10.0)
+        # 추정 pose 토픽 — 방식 무관 재사용: baseline/EKF=/amcl_pose, M6=/landmark_pose
+        self.declare_parameter('est_topic', '/amcl_pose')
         self.out_csv = self.get_parameter('out_csv').value
         rate = self.get_parameter('rate').value
+        est_topic = self.get_parameter('est_topic').value
 
         self.est = None       # (x,y,yaw, cov6x6)
         self.gt = None        # (x,y,yaw)
@@ -41,12 +44,13 @@ class MetricsRecorder(Node):
         self.rows = []
         self.t0 = None
 
-        self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_amcl, 10)
+        self.create_subscription(PoseWithCovarianceStamped, est_topic, self.on_amcl, 10)
         self.create_subscription(Odometry, '/ground_truth', self.on_gt, 10)
         self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
         self.create_timer(1.0 / rate, self.sample)
         self.create_timer(3.0, self.progress)
-        self.get_logger().info(f'metrics_recorder 시작 → {self.out_csv} ({rate}Hz). Ctrl+C 로 저장/요약.')
+        self.get_logger().info(
+            f'metrics_recorder 시작 → {self.out_csv} ({rate}Hz, est={est_topic}). Ctrl+C 로 저장/요약.')
 
     def on_amcl(self, m):
         p = m.pose.pose

@@ -28,8 +28,10 @@ def generate_launch_description():
     # 로봇 모델 선택: 기본 lidar12(baseline). M5(+EKF)는 warehouse_waffle_ekf
     # (diff_drive publish_odom_tf=false — TF 를 noise_injector/EKF 가 대신 발행).
     model = LaunchConfiguration('model', default='warehouse_waffle_lidar12')
+    # 월드 파일명 선택: 기본 개활 창고. M6 는 반사판 오버레이(warehouse_reflectors.world).
+    world_name = LaunchConfiguration('world', default='warehouse_open.world')
 
-    world = os.path.join(pkg_this, 'worlds', 'warehouse', 'warehouse_open.world')
+    world = [os.path.join(pkg_this, 'worlds', 'warehouse'), '/', world_name]
     # 커스텀 waffle: LiDAR 최대거리 12m (원본 3.5m). 메시는 turtlebot3_common 참조 유지.
     waffle_sdf = [os.path.join(pkg_this, 'models'), '/', model, '/model.sdf']
 
@@ -68,6 +70,7 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument('x_pose', default_value='-24.0'))
     ld.add_action(DeclareLaunchArgument('y_pose', default_value='-24.0'))
     ld.add_action(DeclareLaunchArgument('model', default_value='warehouse_waffle_lidar12'))
+    ld.add_action(DeclareLaunchArgument('world', default_value='warehouse_open.world'))
     ld.add_action(gzserver)
     ld.add_action(gzclient)
     ld.add_action(robot_state_publisher)

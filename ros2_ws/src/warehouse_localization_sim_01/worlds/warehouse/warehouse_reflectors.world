@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!--
+  warehouse_open.world  (M2)
+  특징 없는 개활 창고: 외벽 폐쇄 60x60m + 구조 기둥 8개(20m 격자, 중앙 비움) + 적재 랙.
+  좌표 원점(0,0)이 건물 중앙. 벽은 ±30, 기둥은 {-20,0,20} 격자에서 중앙 제외.
+  중앙부(반경 ~8m)는 기둥(최근접 20m)·벽(최근접 30m)이 모두 12m LiDAR 밖 = featureless core.
+-->
+<sdf version="1.6">
+  <world name="warehouse_open">
+
+    <!-- 기본 광원/바닥 (Gazebo 내장 모델) -->
+    <include><uri>model://sun</uri></include>
+    <include><uri>model://ground_plane</uri></include>
+
+    <scene>
+      <ambient>0.5 0.5 0.5 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- ===================== 외벽 (60x60, 높이 2.5m) ===================== -->
+    <model name="warehouse_walls">
+      <static>true</static>
+      <link name="walls">
+        <!-- North (y=+30) -->
+        <collision name="c_north"><pose>0 30 1.25 0 0 0</pose>
+          <geometry><box><size>60.4 0.2 2.5</size></box></geometry></collision>
+        <visual name="v_north"><pose>0 30 1.25 0 0 0</pose>
+          <geometry><box><size>60.4 0.2 2.5</size></box></geometry>
+          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material></visual>
+        <!-- South (y=-30) -->
+        <collision name="c_south"><pose>0 -30 1.25 0 0 0</pose>
+          <geometry><box><size>60.4 0.2 2.5</size></box></geometry></collision>
+        <visual name="v_south"><pose>0 -30 1.25 0 0 0</pose>
+          <geometry><box><size>60.4 0.2 2.5</size></box></geometry>
+          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material></visual>
+        <!-- East (x=+30) -->
+        <collision name="c_east"><pose>30 0 1.25 0 0 0</pose>
+          <geometry><box><size>0.2 60.4 2.5</size></box></geometry></collision>
+        <visual name="v_east"><pose>30 0 1.25 0 0 0</pose>
+          <geometry><box><size>0.2 60.4 2.5</size></box></geometry>
+          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material></visual>
+        <!-- West (x=-30) -->
+        <collision name="c_west"><pose>-30 0 1.25 0 0 0</pose>
+          <geometry><box><size>0.2 60.4 2.5</size></box></geometry></collision>
+        <visual name="v_west"><pose>-30 0 1.25 0 0 0</pose>
+          <geometry><box><size>0.2 60.4 2.5</size></box></geometry>
+          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material></visual>
+      </link>
+    </model>
+
+    <!-- ===================== 구조 기둥 8개 (지름 0.4m, 20m 격자, 중앙 비움) ===================== -->
+    <model name="pillars">
+      <static>true</static>
+      <link name="pillars_link">
+        <!-- 각 기둥: 반지름 0.2, 길이 2.5, z중심 1.25 -->
+        <collision name="c_p1"><pose>-20 -20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p1"><pose>-20 -20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p2"><pose>0 -20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p2"><pose>0 -20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p3"><pose>20 -20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p3"><pose>20 -20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p4"><pose>-20 0 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p4"><pose>-20 0 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p5"><pose>20 0 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p5"><pose>20 0 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p6"><pose>-20 20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p6"><pose>-20 20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p7"><pose>0 20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p7"><pose>0 20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+        <collision name="c_p8"><pose>20 20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry></collision>
+        <visual name="v_p8"><pose>20 20 1.25 0 0 0</pose><geometry><cylinder><radius>0.2</radius><length>2.5</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/DarkGrey</name></script></material></visual>
+      </link>
+    </model>
+
+    <!-- ===================== 적재 랙 (팔레트 박스 더미, 일부 기둥 가림) ===================== -->
+    <model name="racks">
+      <static>true</static>
+      <link name="racks_link">
+        <!-- 각 랙: 2 x 1 x 1.5, z중심 0.75. 기둥과 중앙 사이에 놓아 시선 차단 -->
+        <collision name="c_r1"><pose>16 0 0.75 0 0 0</pose><geometry><box><size>1 2 1.5</size></box></geometry></collision>
+        <visual name="v_r1"><pose>16 0 0.75 0 0 0</pose><geometry><box><size>1 2 1.5</size></box></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Orange</name></script></material></visual>
+        <collision name="c_r2"><pose>-16 0 0.75 0 0 0</pose><geometry><box><size>1 2 1.5</size></box></geometry></collision>
+        <visual name="v_r2"><pose>-16 0 0.75 0 0 0</pose><geometry><box><size>1 2 1.5</size></box></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Orange</name></script></material></visual>
+        <collision name="c_r3"><pose>0 16 0.75 0 0 0</pose><geometry><box><size>2 1 1.5</size></box></geometry></collision>
+        <visual name="v_r3"><pose>0 16 0.75 0 0 0</pose><geometry><box><size>2 1 1.5</size></box></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Orange</name></script></material></visual>
+        <collision name="c_r4"><pose>0 -16 0.75 0 0 0</pose><geometry><box><size>2 1 1.5</size></box></geometry></collision>
+        <visual name="v_r4"><pose>0 -16 0.75 0 0 0</pose><geometry><box><size>2 1 1.5</size></box></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Orange</name></script></material></visual>
+      </link>
+    </model>
+
+    <model name="reflectors">
+      <static>true</static>
+      <link name="reflectors_link">
+        <!-- M6 반사판: 가는 폴(r0.08). 검출=기하(폭), 식별=성좌. occupancy 맵엔 없음. -->
+        <collision name="c_R00"><pose>-14.67 -13.67 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R00"><pose>-14.67 -13.67 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R01"><pose>-16.34 -4.93 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R01"><pose>-16.34 -4.93 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R02"><pose>-12.49 7.54 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R02"><pose>-12.49 7.54 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R03"><pose>-17.4 13.13 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R03"><pose>-17.4 13.13 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R04"><pose>-7.87 -15.38 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R04"><pose>-7.87 -15.38 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R05"><pose>-8.01 -5.28 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R05"><pose>-8.01 -5.28 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R06"><pose>-4.05 3.58 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R06"><pose>-4.05 3.58 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R07"><pose>-3.87 15.58 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R07"><pose>-3.87 15.58 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R08"><pose>1.95 -14.62 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R08"><pose>1.95 -14.62 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R09"><pose>3.46 -5.54 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R09"><pose>3.46 -5.54 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R10"><pose>3.61 6.24 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R10"><pose>3.61 6.24 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R11"><pose>4.62 12.8 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R11"><pose>4.62 12.8 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R12"><pose>15.29 -13.21 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R12"><pose>15.29 -13.21 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R13"><pose>13.76 -6.78 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R13"><pose>13.76 -6.78 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R14"><pose>14.28 7.79 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R14"><pose>14.28 7.79 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+        <collision name="c_R15"><pose>18.05 16.1 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry></collision>
+        <visual name="v_R15"><pose>18.05 16.1 0.6 0 0 0</pose><geometry><cylinder><radius>0.08</radius><length>1.2</length></cylinder></geometry><material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Yellow</name></script></material></visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
